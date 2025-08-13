@@ -1,6 +1,11 @@
-# Starter Kit — ReAct + LangGraph (neutro)
+# Starter Kit — ReAct + LangGraph
 
-Plantilla mínima y extensible para construir agentes con ciclo **ReAct** y grafo en **LangGraph**, sin sesgos, con rutas **estática** y **LLM** conmutables.
+[![CI/CD Pipeline](https://github.com/sstuardo/starterkit-langgraph-react-aifsd/actions/workflows/ci.yml/badge.svg)](https://github.com/sstuardo/starterkit-langgraph-react-aifsd/actions/workflows/ci.yml)
+[![Release](https://github.com/sstuardo/starterkit-langgraph-react-aifsd/actions/workflows/release.yml/badge.svg)](https://github.com/sstuardo/starterkit-langgraph-react-aifsd/actions/workflows/release.yml)
+[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
+Plantilla neutral para agentes con ciclo ReAct y compilación a grafo con LangGraph.
 
 Repo: https://github.com/sstuardo/starterkit-langgraph-react-aifsd/
 
