@@ -1,6 +1,18 @@
+# Entorno virtual
 .venv/
+
+# Archivos temporales de Python
 __pycache__/
 *.pyc
-.DS_Store
+*.pyo
+*.pyd
+
+# Configuración local y secretos
 .env
+*.env
+*.log
+
+# Archivos de sistema
+.DS_Store
+
 starter_kit_langgraph_react.zip
