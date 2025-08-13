@@ -1,0 +1,12 @@
+pydantic<3.0,>=2.7
+python-dotenv<2.0,>=1.0
+structlog<25,>=24
+langgraph<0.4,>=0.2
+
+[agent]
+langchain<0.4,>=0.3
+langchain-openai<0.4,>=0.2
+langchain-community<0.4,>=0.2
+
+[test]
+pytest<9,>=8

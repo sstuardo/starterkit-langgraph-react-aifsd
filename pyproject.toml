@@ -1,0 +1,22 @@
+[project]
+name = "starterkit"
+version = "0.1.0"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+  "pydantic>=2.7,<3.0",
+  "python-dotenv>=1.0,<2.0",
+  "structlog>=24,<25",
+  "langgraph>=0.2,<0.4",
+]
+
+[project.optional-dependencies]
+test = ["pytest>=8,<9"]
+agent = [
+  "langchain>=0.3,<0.4",
+  "langchain-openai>=0.2,<0.4",
+  "langchain-community>=0.2,<0.4",
+]
+
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
