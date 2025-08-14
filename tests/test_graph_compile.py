@@ -1,4 +1,5 @@
 """Smoke test del grafo LangGraph compilado (modo estático por defecto)."""
+
 from src.adapters.langgraph_builder import compile_graph
 from src.core.state import State
 from src.react.register_tools import ensure_tools_registered

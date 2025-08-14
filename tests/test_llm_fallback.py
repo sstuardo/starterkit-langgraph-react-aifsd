@@ -6,9 +6,9 @@ from src.core.state import State
 from src.react.register_tools import ensure_tools_registered
 
 pytestmark = pytest.mark.skipif(
-    not os.getenv("OPENAI_API_KEY"),
-    reason="requiere OPENAI_API_KEY para modo LLM"
+    not os.getenv("OPENAI_API_KEY"), reason="requiere OPENAI_API_KEY para modo LLM"
 )
+
 
 def test_llm_fallback_echo():
     ensure_tools_registered()
