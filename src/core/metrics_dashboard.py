@@ -25,7 +25,7 @@ class SLODefinition:
         threshold: float,
         operator: str = ">=",  # >=, <=, ==, !=
         severity: str = "warning",  # info, warning, error, critical
-        description: str = ""
+        description: str = "",
     ):
         self.name = name
         self.metric = metric
@@ -69,7 +69,7 @@ class MetricsDashboard:
             5000.0,  # 5 segundos
             "<=",
             "warning",
-            "P95 de latencia debe estar bajo 5 segundos"
+            "P95 de latencia debe estar bajo 5 segundos",
         )
 
         # Tasa de éxito
@@ -79,7 +79,7 @@ class MetricsDashboard:
             0.95,  # 95%
             ">=",
             "error",
-            "Tasa de éxito debe estar por encima del 95%"
+            "Tasa de éxito debe estar por encima del 95%",
         )
 
         # Tasa de error
@@ -89,7 +89,7 @@ class MetricsDashboard:
             0.05,  # 5%
             "<=",
             "warning",
-            "Tasa de error debe estar por debajo del 5%"
+            "Tasa de error debe estar por debajo del 5%",
         )
 
         # Presupuesto de tokens
@@ -99,12 +99,18 @@ class MetricsDashboard:
             1000,
             "<=",
             "info",
-            "Uso de tokens debe estar bajo 1000 por episodio"
+            "Uso de tokens debe estar bajo 1000 por episodio",
         )
 
-    def add_slo(self, name: str, metric: str, threshold: float,
-                operator: str = ">=", severity: str = "warning",
-                description: str = ""):
+    def add_slo(
+        self,
+        name: str,
+        metric: str,
+        threshold: float,
+        operator: str = ">=",
+        severity: str = "warning",
+        description: str = "",
+    ):
         """Agrega un nuevo SLO."""
         slo = SLODefinition(name, metric, threshold, operator, severity, description)
         self.slos.append(slo)
@@ -122,16 +128,18 @@ class MetricsDashboard:
             if slo.metric in global_metrics:
                 value = global_metrics[slo.metric]
                 if not slo.evaluate(value):
-                    violations.append({
-                        "slo_name": slo.name,
-                        "metric": slo.metric,
-                        "current_value": value,
-                        "threshold": slo.threshold,
-                        "operator": slo.operator,
-                        "severity": slo.severity,
-                        "description": slo.description,
-                        "timestamp": datetime.now().isoformat()
-                    })
+                    violations.append(
+                        {
+                            "slo_name": slo.name,
+                            "metric": slo.metric,
+                            "current_value": value,
+                            "threshold": slo.threshold,
+                            "operator": slo.operator,
+                            "severity": slo.severity,
+                            "description": slo.description,
+                            "timestamp": datetime.now().isoformat(),
+                        }
+                    )
 
             # Buscar en métricas de operaciones específicas
             else:
@@ -139,17 +147,19 @@ class MetricsDashboard:
                     if slo.metric in op_metrics:
                         value = op_metrics[slo.metric]
                         if not slo.evaluate(value):
-                            violations.append({
-                                "slo_name": slo.name,
-                                "operation": op_name,
-                                "metric": slo.metric,
-                                "current_value": value,
-                                "threshold": slo.threshold,
-                                "operator": slo.operator,
-                                "severity": slo.severity,
-                                "description": slo.description,
-                                "timestamp": datetime.now().isoformat()
-                            })
+                            violations.append(
+                                {
+                                    "slo_name": slo.name,
+                                    "operation": op_name,
+                                    "metric": slo.metric,
+                                    "current_value": value,
+                                    "threshold": slo.threshold,
+                                    "operator": slo.operator,
+                                    "severity": slo.severity,
+                                    "description": slo.description,
+                                    "timestamp": datetime.now().isoformat(),
+                                }
+                            )
 
         return violations
 
@@ -165,21 +175,22 @@ class MetricsDashboard:
                 "type": "slo_violation",
                 "severity": violation["severity"],
                 "message": (
-                    f"SLO '{violation['slo_name']}' violado: "
-                    f"{violation['description']}"
+                    f"SLO '{violation['slo_name']}' violado: {violation['description']}"
                 ),
                 "details": violation,
                 "timestamp": datetime.now().isoformat(),
-                "acknowledged": False
+                "acknowledged": False,
             }
             self.alerts.append(alert)
 
         # Actualizar historial
-        self.metrics_history.append({
-            "timestamp": datetime.now().isoformat(),
-            "metrics": metrics,
-            "violations": violations
-        })
+        self.metrics_history.append(
+            {
+                "timestamp": datetime.now().isoformat(),
+                "metrics": metrics,
+                "violations": violations,
+            }
+        )
 
         # Mantener solo las últimas 100 entradas
         if len(self.metrics_history) > 100:
@@ -192,11 +203,11 @@ class MetricsDashboard:
                 "last_update": self.last_update.isoformat(),
                 "total_slos": len(self.slos),
                 "active_alerts": len([a for a in self.alerts if not a["acknowledged"]]),
-                "total_violations": len(violations)
+                "total_violations": len(violations),
             },
             "metrics": metrics,
             "violations": violations,
-            "recent_alerts": self.alerts[-10:]  # Últimas 10 alertas
+            "recent_alerts": self.alerts[-10:],  # Últimas 10 alertas
         }
 
     def get_kpis(self) -> dict[str, Any]:
@@ -208,23 +219,23 @@ class MetricsDashboard:
             "performance": {
                 "latency_p50_ms": global_metrics.get("latency_p50", 0.0),
                 "latency_p95_ms": global_metrics.get("latency_p95", 0.0),
-                "latency_p99_ms": global_metrics.get("latency_p99", 0.0)
+                "latency_p99_ms": global_metrics.get("latency_p99", 0.0),
             },
             "reliability": {
                 "success_rate": global_metrics.get("tool_success_rate", 0.0),
                 "error_rate": global_metrics.get("error_rate", 0.0),
-                "total_steps": global_metrics.get("total_steps", 0)
+                "total_steps": global_metrics.get("total_steps", 0),
             },
             "efficiency": {
                 "total_tokens": global_metrics.get("total_tokens", 0),
                 "estimated_cost_usd": global_metrics.get("estimated_cost_usd", 0.0),
-                "tool_calls": global_metrics.get("tool_calls", 0)
+                "tool_calls": global_metrics.get("tool_calls", 0),
             },
             "health": {
                 "active_alerts": len([a for a in self.alerts if not a["acknowledged"]]),
                 "slo_violations": len(self.evaluate_slos(metrics)),
-                "last_update": self.last_update.isoformat()
-            }
+                "last_update": self.last_update.isoformat(),
+            },
         }
 
     def acknowledge_alert(self, alert_id: str):
@@ -251,7 +262,8 @@ class MetricsDashboard:
         cutoff_time = datetime.now() - timedelta(hours=hours)
 
         relevant_history = [
-            entry for entry in self.metrics_history
+            entry
+            for entry in self.metrics_history
             if datetime.fromisoformat(entry["timestamp"]) > cutoff_time
         ]
 
@@ -279,16 +291,18 @@ class MetricsDashboard:
                     "max": max(values),
                     "avg": sum(values) / len(values),
                     "trend": (
-                        "increasing" if values[-1] > values[0]
-                        else "decreasing" if values[-1] < values[0]
+                        "increasing"
+                        if values[-1] > values[0]
+                        else "decreasing"
+                        if values[-1] < values[0]
                         else "stable"
-                    )
+                    ),
                 }
 
         return {
             "period_hours": hours,
             "data_points": len(relevant_history),
-            "trends": trend_analysis
+            "trends": trend_analysis,
         }
 
 

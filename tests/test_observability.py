@@ -37,11 +37,7 @@ class TestMetrics:
 
     def test_metrics_custom_values(self):
         """Test de métricas con valores personalizados."""
-        metrics = Metrics(
-            latency_p50=100.0,
-            total_tokens=500,
-            total_steps=10
-        )
+        metrics = Metrics(latency_p50=100.0, total_tokens=500, total_steps=10)
 
         assert metrics.latency_p50 == 100.0
         assert metrics.total_tokens == 500
@@ -153,7 +149,7 @@ class TestSLODefinition:
         # SLO de latencia <= 100ms
         slo = SLODefinition("latency_test", "latency", 100.0, "<=")
 
-        assert slo.evaluate(50.0)   # Cumple
+        assert slo.evaluate(50.0)  # Cumple
         assert slo.evaluate(100.0)  # Cumple exactamente
         assert not slo.evaluate(150.0)  # No cumple
 
@@ -185,8 +181,7 @@ class TestMetricsDashboard:
         initial_count = len(dashboard.slos)
 
         dashboard.add_slo(
-            "custom_slo", "custom_metric", 0.9, ">=",
-            "warning", "Test SLO"
+            "custom_slo", "custom_metric", 0.9, ">=", "warning", "Test SLO"
         )
 
         assert len(dashboard.slos) == initial_count + 1
@@ -196,15 +191,15 @@ class TestMetricsDashboard:
         dashboard = MetricsDashboard()
 
         # Simular métricas que violan SLOs
-        with patch('src.core.metrics_dashboard.get_metrics_summary') as mock_metrics:
+        with patch("src.core.metrics_dashboard.get_metrics_summary") as mock_metrics:
             mock_metrics.return_value = {
                 "global_metrics": {
                     "latency_p95": 6000.0,  # Viola SLO de 5s
                     "tool_success_rate": 0.85,  # Viola SLO de 95%
                     "error_rate": 0.15,  # Viola SLO de 5%
-                    "total_tokens": 1500  # Viola SLO de 1000
+                    "total_tokens": 1500,  # Viola SLO de 1000
                 },
-                "operations": {}
+                "operations": {},
             }
 
             violations = dashboard.evaluate_slos(mock_metrics.return_value)

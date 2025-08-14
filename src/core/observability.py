@@ -29,7 +29,7 @@ structlog.configure(
         structlog.processors.StackInfoRenderer(),
         structlog.processors.format_exc_info,
         structlog.processors.UnicodeDecoder(),
-        structlog.processors.JSONRenderer()
+        structlog.processors.JSONRenderer(),
     ],
     context_class=dict,
     logger_factory=structlog.stdlib.LoggerFactory(),
@@ -82,7 +82,7 @@ class TraceContext:
     session_id: str | None = None
     request_id: str | None = None
 
-    def new_span(self) -> 'TraceContext':
+    def new_span(self) -> "TraceContext":
         """Crea un nuevo span hijo."""
         return TraceContext(
             trace_id=self.trace_id,
@@ -90,7 +90,7 @@ class TraceContext:
             parent_span_id=self.span_id,
             user_id=self.user_id,
             session_id=self.session_id,
-            request_id=self.request_id
+            request_id=self.request_id,
         )
 
 
@@ -153,10 +153,7 @@ class MetricsCollector:
     def get_summary(self, operation: str = None) -> dict[str, Any]:
         """Obtiene resumen de métricas."""
         if operation:
-            return {
-                "operation": operation,
-                "metrics": self.metrics[operation].__dict__
-            }
+            return {"operation": operation, "metrics": self.metrics[operation].__dict__}
 
         # Resumen global
         global_metrics = Metrics()
@@ -173,7 +170,9 @@ class MetricsCollector:
 
         return {
             "global_metrics": global_metrics.__dict__,
-            "operations": {op: metrics.__dict__ for op, metrics in self.metrics.items()}
+            "operations": {
+                op: metrics.__dict__ for op, metrics in self.metrics.items()
+            },
         }
 
 
@@ -198,7 +197,7 @@ def span(name: str, trace_context: TraceContext | None = None, **kv):
         trace_id=span_context.trace_id,
         span_id=span_context.span_id,
         parent_span_id=span_context.parent_span_id,
-        **kv
+        **kv,
     )
 
     try:
@@ -215,7 +214,7 @@ def span(name: str, trace_context: TraceContext | None = None, **kv):
             trace_id=span_context.trace_id,
             span_id=span_context.span_id,
             elapsed_ms=dt,
-            **kv
+            **kv,
         )
 
     except Exception as e:
@@ -232,7 +231,7 @@ def span(name: str, trace_context: TraceContext | None = None, **kv):
             elapsed_ms=dt,
             error=str(e),
             error_type=type(e).__name__,
-            **kv
+            **kv,
         )
         raise
 
@@ -251,18 +250,21 @@ def reset_metrics():
 # Decorador para métricas automáticas
 def track_metrics(operation_name: str = None):
     """Decorador para tracking automático de métricas."""
+
     def decorator(func):
         def wrapper(*args, **kwargs):
             op_name = operation_name or func.__name__
 
             with span(op_name) as span_ctx:
                 # Agregar contexto de trazabilidad a la función
-                if (hasattr(func, '__self__') and
-                    hasattr(func.__self__, 'trace_context')):
+                if hasattr(func, "__self__") and hasattr(
+                    func.__self__, "trace_context"
+                ):
                     func.__self__.trace_context = span_ctx
 
                 result = func(*args, **kwargs)
                 return result
 
         return wrapper
+
     return decorator

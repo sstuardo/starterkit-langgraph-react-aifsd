@@ -83,8 +83,7 @@ class MonitorTool:
                 content = self._get_trends(args.hours)
             else:
                 return ToolOutput(
-                    ok=False,
-                    content={"error": f"Acción no válida: {args.action}"}
+                    ok=False, content={"error": f"Acción no válida: {args.action}"}
                 )
 
             # Formatear salida según el formato solicitado
@@ -92,14 +91,12 @@ class MonitorTool:
                 return ToolOutput(ok=True, content=content)
             else:  # summary
                 return ToolOutput(
-                    ok=True,
-                    content=self._format_summary(content, args.action)
+                    ok=True, content=self._format_summary(content, args.action)
                 )
 
         except Exception as e:
             return ToolOutput(
-                ok=False,
-                content={"error": f"Error en monitoreo: {str(e)}"}
+                ok=False, content={"error": f"Error en monitoreo: {str(e)}"}
             )
 
     def _get_kpis(self) -> dict:
@@ -124,7 +121,7 @@ class MonitorTool:
         return {
             "active_alerts": len(active_alerts),
             "total_alerts": len(dashboard.alerts),
-            "alerts": active_alerts[:10]  # Últimas 10 alertas activas
+            "alerts": active_alerts[:10],  # Últimas 10 alertas activas
         }
 
     def _get_trends(self, hours: int) -> dict:
@@ -154,23 +151,23 @@ class MonitorTool:
             "performance": {
                 "latencia_p50": f"{kpis['performance']['latency_p50_ms']:.1f}ms",
                 "latencia_p95": f"{kpis['performance']['latency_p95_ms']:.1f}ms",
-                "latencia_p99": f"{kpis['performance']['latency_p99_ms']:.1f}ms"
+                "latencia_p99": f"{kpis['performance']['latency_p99_ms']:.1f}ms",
             },
             "reliability": {
-                "tasa_exito": f"{kpis['reliability']['success_rate']*100:.1f}%",
-                "tasa_error": f"{kpis['reliability']['error_rate']*100:.1f}%",
-                "total_pasos": kpis['reliability']['total_steps']
+                "tasa_exito": f"{kpis['reliability']['success_rate'] * 100:.1f}%",
+                "tasa_error": f"{kpis['reliability']['error_rate'] * 100:.1f}%",
+                "total_pasos": kpis["reliability"]["total_steps"],
             },
             "efficiency": {
-                "total_tokens": kpis['efficiency']['total_tokens'],
+                "total_tokens": kpis["efficiency"]["total_tokens"],
                 "costo_estimado": f"${kpis['efficiency']['estimated_cost_usd']:.4f}",
-                "llamadas_tools": kpis['efficiency']['tool_calls']
+                "llamadas_tools": kpis["efficiency"]["tool_calls"],
             },
             "health": {
-                "alertas_activas": kpis['health']['active_alerts'],
-                "violaciones_slo": kpis['health']['slo_violations'],
-                "ultima_actualizacion": kpis['health']['last_update']
-            }
+                "alertas_activas": kpis["health"]["active_alerts"],
+                "violaciones_slo": kpis["health"]["slo_violations"],
+                "ultima_actualizacion": kpis["health"]["last_update"],
+            },
         }
 
     def _format_metrics_summary(self, metrics: dict) -> dict:
@@ -183,9 +180,9 @@ class MonitorTool:
                 "tokens": global_metrics.get("total_tokens", 0),
                 "costo": f"${global_metrics.get('estimated_cost_usd', 0.0):.4f}",
                 "tasa_exito": (
-                    f"{global_metrics.get('tool_success_rate', 0.0)*100:.1f}%"
+                    f"{global_metrics.get('tool_success_rate', 0.0) * 100:.1f}%"
                 ),
-                "operaciones": len(metrics.get("operations", {}))
+                "operaciones": len(metrics.get("operations", {})),
             }
         else:
             return {
@@ -195,7 +192,7 @@ class MonitorTool:
                 "tokens": metrics.get("metrics", {}).get("total_tokens", 0),
                 "costo": (
                     f"${metrics.get('metrics', {}).get('estimated_cost_usd', 0.0):.4f}"
-                )
+                ),
             }
 
     def _format_dashboard_summary(self, dashboard: dict) -> dict:
@@ -206,7 +203,7 @@ class MonitorTool:
             "total_slos": dashboard["dashboard"]["total_slos"],
             "alertas_activas": dashboard["dashboard"]["active_alerts"],
             "violaciones": dashboard["dashboard"]["total_violations"],
-            "metricas_disponibles": len(dashboard["metrics"].get("operations", {}))
+            "metricas_disponibles": len(dashboard["metrics"].get("operations", {})),
         }
 
     def _format_alerts_summary(self, alerts: dict) -> dict:
@@ -219,10 +216,10 @@ class MonitorTool:
                 {
                     "severidad": alert["severity"],
                     "mensaje": alert["message"],
-                    "timestamp": alert["timestamp"]
+                    "timestamp": alert["timestamp"],
                 }
                 for alert in alerts["alerts"][:5]  # Solo las primeras 5
-            ]
+            ],
         }
 
     def _format_trends_summary(self, trends: dict) -> dict:
@@ -240,8 +237,8 @@ class MonitorTool:
                     "tendencia": data["trend"],
                     "min": data["min"],
                     "max": data["max"],
-                    "promedio": f"{data['avg']:.2f}"
+                    "promedio": f"{data['avg']:.2f}",
                 }
                 for metric, data in trends["trends"].items()
-            }
+            },
         }
