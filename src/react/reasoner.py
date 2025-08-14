@@ -1,6 +1,7 @@
 """Nodo Reasoner: decide si pensar más, actuar o finalizar."""
-from src.core.state import State
+
 from src.core.observability import span
+from src.core.state import State
 
 
 def should_answer(s: State) -> bool:
@@ -27,10 +28,15 @@ def reasoner_node(state: State) -> State:
     with span("reasoner", step=state.step):
         s = state.model_copy(deep=True)
         s.step += 1  # importante para cortar ciclos y respetar presupuesto
-        s.working_memory.append({
-            "role": "thought",
-            "content": {"goal": "Acercarse a respuesta verificable", "next": "Elegir tool o cerrar respuesta"},
-        })
+        s.working_memory.append(
+            {
+                "role": "thought",
+                "content": {
+                    "goal": "Acercarse a respuesta verificable",
+                    "next": "Elegir tool o cerrar respuesta",
+                },
+            }
+        )
         if should_answer(s):
             s.ready_to_answer = True
         return s

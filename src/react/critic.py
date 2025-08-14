@@ -1,6 +1,8 @@
 """Crítico: checks ligeros de consistencia y decisión de revisión."""
-from src.core.state import State
+
 from src.core.observability import span
+from src.core.state import State
+
 
 def critic_node(state: State) -> State:
     """Marca revise=True si no hay evidencia y hay múltiples errores."""

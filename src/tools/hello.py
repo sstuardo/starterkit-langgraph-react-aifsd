@@ -3,10 +3,11 @@ Herramienta `hello`.
 
 Propósito:
   Herramienta de demostración que saluda al usuario.
-  Útil para probar el sistema de herramientas y verificar que funciona correctamente.
+  Útil para probar el sistema de herramientas y verificar que funciona
+  correctamente.
 """
 
-from src.core.tool_interface import Tool, ToolInput, ToolOutput
+from src.core.tool_interface import ToolInput, ToolOutput
 
 
 class HelloIn(ToolInput):
@@ -19,6 +20,7 @@ class HelloIn(ToolInput):
     Atributos:
       name: Nombre de la persona a saludar.
     """
+
     name: str = "World"
 
 
@@ -49,7 +51,8 @@ class HelloTool:
           Retornar un `ToolOutput` exitoso con un saludo personalizado.
 
         Args:
-          args: Parámetros tipados de entrada (`HelloIn`), incluyendo el campo `name`.
+          args: Parámetros tipados de entrada (`HelloIn`), incluyendo el
+                campo `name`.
 
         Returns:
           ToolOutput: Objeto con `ok=True` y `content={"greeting": <saludo>}`.

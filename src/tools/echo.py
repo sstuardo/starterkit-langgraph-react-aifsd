@@ -2,16 +2,17 @@
 Herramienta `echo`.
 
 Propósito:
-  Proveer una tool de demostración que devuelve exactamente el mismo texto de entrada.
-  Útil para probar el pipeline de Tools en el ciclo ReAct (selección, ejecución y
-  observación) sin depender de servicios externos.
+  Proveer una tool de demostración que devuelve exactamente el mismo texto de
+  entrada. Útil para probar el pipeline de Tools en el ciclo ReAct
+  (selección, ejecución y observación) sin depender de servicios externos.
 
 Notas:
-  - Registrar esta tool en el `TOOL_REGISTRY` antes de usarla (ver `src/react/register_tools.py`).
+  - Registrar esta tool en el `TOOL_REGISTRY` antes de usarla
+    (ver `src/react/register_tools.py`).
   - Contratos tipados con Pydantic a través de `ToolInput` y `ToolOutput`.
 """
 
-from src.core.tool_interface import Tool, ToolInput, ToolOutput
+from src.core.tool_interface import ToolInput, ToolOutput
 
 
 class EchoIn(ToolInput):
@@ -57,7 +58,8 @@ class EchoTool:
           recibido en `args.text`.
 
         Args:
-          args: Parámetros tipados de entrada (`EchoIn`), incluyendo el campo `text`.
+          args: Parámetros tipados de entrada (`EchoIn`), incluyendo el
+                campo `text`.
 
         Returns:
           ToolOutput: Objeto con `ok=True` y `content={"echo": <texto>}`.

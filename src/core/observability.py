@@ -1,8 +1,12 @@
 """Observabilidad mínima con spans y structlog."""
-import time, structlog
+
+import time
 from contextlib import contextmanager
 
+import structlog
+
 log = structlog.get_logger()
+
 
 @contextmanager
 def span(name: str, **kv):

@@ -16,17 +16,20 @@ Notas:
 
 from __future__ import annotations
 
-from langgraph.graph import StateGraph
-from src.core.state import State
-from src.react.planner import planner_node
-from src.react.reasoner import reasoner_node
-from src.react.tool_selector import tool_selector_node
-from src.react.tool_executor import tool_executor_node, TOOL_REGISTRY
-from src.react.critic import critic_node
-from src.react.finalizer import finalizer_node
 import os
 
+from langgraph.graph import StateGraph
+
+from src.core.state import State
+from src.react.critic import critic_node
+from src.react.finalizer import finalizer_node
+from src.react.planner import planner_node
+from src.react.reasoner import reasoner_node
+from src.react.tool_executor import TOOL_REGISTRY, tool_executor_node
+from src.react.tool_selector import tool_selector_node
+
 FALLBACK_ENABLED = os.getenv("LLM_FALLBACK", "1") not in ("0", "false", "False")
+
 
 def _compile_static():
     """Compila el grafo en modo **estático** (router determinístico)."""
@@ -55,14 +58,22 @@ def _compile_static():
         """Tras selector: si hay tool → ejecutor; si no → critic (evita bucles)."""
         return "tool_executor" if s.metadata.get("selected_tool") else "critic"
 
-    g.add_conditional_edges("reasoner", decide_next, {
-        "tool_selector": "tool_selector",
-        "critic": "critic",
-    })
-    g.add_conditional_edges("tool_selector", select_path, {
-        "tool_executor": "tool_executor",
-        "critic": "critic",
-    })
+    g.add_conditional_edges(
+        "reasoner",
+        decide_next,
+        {
+            "tool_selector": "tool_selector",
+            "critic": "critic",
+        },
+    )
+    g.add_conditional_edges(
+        "tool_selector",
+        select_path,
+        {
+            "tool_executor": "tool_executor",
+            "critic": "critic",
+        },
+    )
 
     # Tras ejecutar tools, volvemos a razonamiento
     g.add_edge("tool_executor", "reasoner")
@@ -74,6 +85,7 @@ def _compile_static():
     g.set_finish_point("finalizer")
     return g.compile()
 
+
 def _compile_llm():
     """Compila el grafo en modo **LLM** con:
     - Normalización segura del 1er turno (evita error 400).
@@ -81,12 +93,22 @@ def _compile_llm():
     - Fallback determinístico si el prompt pide explícitamente 'echo'.
     - Sincronización de evidencia (ToolMessage/artifacts) antes de cerrar.
     """
-    from langgraph.prebuilt import ToolNode, tools_condition  # requiere langgraph>=0.3.1
+    import os
+
+    from langchain_core.messages import (
+        AIMessage,
+        HumanMessage,
+        SystemMessage,
+        ToolMessage,
+    )
     from langchain_openai import ChatOpenAI
-    from langchain_core.messages import SystemMessage, HumanMessage, AIMessage, ToolMessage
+    from langgraph.prebuilt import (  # requiere langgraph>=0.3.1
+        ToolNode,
+        tools_condition,
+    )
+
     from src.adapters.lc_tool_bridge import to_structured_tools
     from src.core.observability import span
-    import os
 
     lc_tools = to_structured_tools(TOOL_REGISTRY)
     model_id = os.getenv("LLM_MODEL", "gpt-4o-mini")
@@ -114,7 +136,11 @@ def _compile_llm():
 
     def _wants_echo(user_query: str) -> bool:
         q = user_query.lower()
-        return ("usa la herramienta echo" in q) or ("usar la herramienta echo" in q) or (" echo " in f" {q} ")
+        return (
+            ("usa la herramienta echo" in q)
+            or ("usar la herramienta echo" in q)
+            or (" echo " in f" {q} ")
+        )
 
     def model_node(state: State) -> State:
         with span("model", step=state.step):
@@ -164,11 +190,22 @@ def _compile_llm():
                 else:
                     payload = {"value": str(content)}
                 s.artifacts[tool_name] = payload
-                s.working_memory.append({"role": "observation", "content": {"tool": tool_name, "result": payload}})
+                s.working_memory.append(
+                    {
+                        "role": "observation",
+                        "content": {"tool": tool_name, "result": payload},
+                    }
+                )
             # 2) Si venimos del fallback (artifacts ya poblados), también anotar observación
-            if s.metadata.get("selected_tool") is None and not tool_msgs and s.artifacts:
+            if (
+                s.metadata.get("selected_tool") is None
+                and not tool_msgs
+                and s.artifacts
+            ):
                 for k, v in s.artifacts.items():
-                    s.working_memory.append({"role": "observation", "content": {"tool": k, "result": v}})
+                    s.working_memory.append(
+                        {"role": "observation", "content": {"tool": k, "result": v}}
+                    )
             # 3) Subir confianza y marcar listo si hay evidencia
             if tool_msgs or s.artifacts:
                 s.confidence = min(1.0, s.confidence + 0.25)
@@ -181,7 +218,7 @@ def _compile_llm():
     g.add_node("model", model_node)
     g.add_node("tools", tool_node)
     g.add_node("fallback", fallback_node)  # <-- nuevo
-    g.add_node("sync", sync_evidence_node) # <-- nuevo
+    g.add_node("sync", sync_evidence_node)  # <-- nuevo
     g.add_node("critic", critic_node)
     g.add_node("finalizer", finalizer_node)
 
@@ -189,11 +226,15 @@ def _compile_llm():
     g.add_edge("planner", "model")
 
     # Router del modelo: tools (si tool_calls), fallback (si prompt lo pide), o cerrar a sync
-    g.add_conditional_edges("model", model_router, {
-        "tools": "tools",
-        "fallback": "fallback",
-        "__end__": "sync",
-    })
+    g.add_conditional_edges(
+        "model",
+        model_router,
+        {
+            "tools": "tools",
+            "fallback": "fallback",
+            "__end__": "sync",
+        },
+    )
 
     # Tras ejecutar tools por ToolNode: una vuelta a model; luego router mandará a sync
     g.add_edge("tools", "model")

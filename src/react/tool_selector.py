@@ -4,8 +4,9 @@ Propósito:
   Determinar de forma determinística si conviene ejecutar una tool.
   En la primera pasada, fuerza 'echo' para obtener un artifact y evitar loops.
 """
-from src.core.state import State
+
 from src.core.observability import span
+from src.core.state import State
 
 
 def tool_selector_node(state: State) -> State:

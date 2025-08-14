@@ -5,17 +5,17 @@ Propósito:
   necesidad de compilar el grafo.
 """
 
-from src.core.state import State
-from src.core.policies import DEFAULT_BUDGET
 from src.core.observability import span
+from src.core.policies import DEFAULT_BUDGET
 from src.core.settings import load_settings
-from src.react.planner import planner_node
-from src.react.reasoner import reasoner_node   # incrementa s.step internamente
-from src.react.tool_selector import tool_selector_node
-from src.react.tool_executor import tool_executor_node
+from src.core.state import State
 from src.react.critic import critic_node
 from src.react.finalizer import finalizer_node
+from src.react.planner import planner_node
+from src.react.reasoner import reasoner_node  # incrementa s.step internamente
 from src.react.register_tools import ensure_tools_registered
+from src.react.tool_executor import tool_executor_node
+from src.react.tool_selector import tool_selector_node
 
 
 def run_react_episode(user_query: str, max_steps: int | None = None) -> State:
@@ -45,7 +45,11 @@ def run_react_episode(user_query: str, max_steps: int | None = None) -> State:
                 break
 
         s = critic_node(s)
-        if s.metadata.get("revise", False) and not s.metadata.get("revised", False) and s.step < s.max_steps:
+        if (
+            s.metadata.get("revise", False)
+            and not s.metadata.get("revised", False)
+            and s.step < s.max_steps
+        ):
             s.metadata["revised"] = True
             s = reasoner_node(s)
         s = finalizer_node(s)
