@@ -1,6 +1,8 @@
 # tests/test_llm_fallback.py
 import os
+
 import pytest
+
 from src.adapters.langgraph_builder import compile_graph
 from src.core.state import State
 from src.react.register_tools import ensure_tools_registered

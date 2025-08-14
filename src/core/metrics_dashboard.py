@@ -10,15 +10,14 @@ Características:
 import json
 import time
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
-from dataclasses import asdict
+from typing import Any
 
-from .observability import get_metrics_summary, MetricsCollector
+from .observability import get_metrics_summary
 
 
 class SLODefinition:
     """Definición de Service Level Objectives."""
-    
+
     def __init__(
         self,
         name: str,
@@ -34,7 +33,7 @@ class SLODefinition:
         self.operator = operator
         self.severity = severity
         self.description = description
-    
+
     def evaluate(self, value: float) -> bool:
         """Evalúa si el valor cumple con el SLO."""
         if self.operator == ">=":
@@ -50,19 +49,19 @@ class SLODefinition:
 
 class MetricsDashboard:
     """Dashboard principal para visualización y alertas de métricas."""
-    
+
     def __init__(self):
-        self.slos: List[SLODefinition] = []
-        self.alerts: List[Dict[str, Any]] = []
-        self.metrics_history: List[Dict[str, Any]] = []
+        self.slos: list[SLODefinition] = []
+        self.alerts: list[dict[str, Any]] = []
+        self.metrics_history: list[dict[str, Any]] = []
         self.last_update = datetime.now()
-        
+
         # SLOs por defecto
         self._setup_default_slos()
-    
+
     def _setup_default_slos(self):
         """Configura SLOs por defecto para agentes ReAct."""
-        
+
         # Latencia
         self.add_slo(
             "latency_p95_under_5s",
@@ -72,7 +71,7 @@ class MetricsDashboard:
             "warning",
             "P95 de latencia debe estar bajo 5 segundos"
         )
-        
+
         # Tasa de éxito
         self.add_slo(
             "success_rate_above_95",
@@ -82,7 +81,7 @@ class MetricsDashboard:
             "error",
             "Tasa de éxito debe estar por encima del 95%"
         )
-        
+
         # Tasa de error
         self.add_slo(
             "error_rate_below_5",
@@ -92,7 +91,7 @@ class MetricsDashboard:
             "warning",
             "Tasa de error debe estar por debajo del 5%"
         )
-        
+
         # Presupuesto de tokens
         self.add_slo(
             "tokens_under_1000",
@@ -102,23 +101,23 @@ class MetricsDashboard:
             "info",
             "Uso de tokens debe estar bajo 1000 por episodio"
         )
-    
-    def add_slo(self, name: str, metric: str, threshold: float, 
-                operator: str = ">=", severity: str = "warning", 
+
+    def add_slo(self, name: str, metric: str, threshold: float,
+                operator: str = ">=", severity: str = "warning",
                 description: str = ""):
         """Agrega un nuevo SLO."""
         slo = SLODefinition(name, metric, threshold, operator, severity, description)
         self.slos.append(slo)
-    
-    def evaluate_slos(self, metrics: Dict[str, Any]) -> List[Dict[str, Any]]:
+
+    def evaluate_slos(self, metrics: dict[str, Any]) -> list[dict[str, Any]]:
         """Evalúa todos los SLOs contra las métricas actuales."""
         violations = []
-        
+
         for slo in self.slos:
             # Buscar el valor de la métrica en las métricas globales
             global_metrics = metrics.get("global_metrics", {})
             operation_metrics = metrics.get("operations", {})
-            
+
             # Buscar en métricas globales primero
             if slo.metric in global_metrics:
                 value = global_metrics[slo.metric]
@@ -133,7 +132,7 @@ class MetricsDashboard:
                         "description": slo.description,
                         "timestamp": datetime.now().isoformat()
                     })
-            
+
             # Buscar en métricas de operaciones específicas
             else:
                 for op_name, op_metrics in operation_metrics.items():
@@ -151,40 +150,43 @@ class MetricsDashboard:
                                 "description": slo.description,
                                 "timestamp": datetime.now().isoformat()
                             })
-        
+
         return violations
-    
-    def update(self) -> Dict[str, Any]:
+
+    def update(self) -> dict[str, Any]:
         """Actualiza el dashboard con métricas frescas."""
         metrics = get_metrics_summary()
         violations = self.evaluate_slos(metrics)
-        
+
         # Agregar alertas si hay violaciones
         for violation in violations:
             alert = {
                 "id": f"alert_{int(time.time())}_{violation['slo_name']}",
                 "type": "slo_violation",
                 "severity": violation["severity"],
-                "message": f"SLO '{violation['slo_name']}' violado: {violation['description']}",
+                "message": (
+                    f"SLO '{violation['slo_name']}' violado: "
+                    f"{violation['description']}"
+                ),
                 "details": violation,
                 "timestamp": datetime.now().isoformat(),
                 "acknowledged": False
             }
             self.alerts.append(alert)
-        
+
         # Actualizar historial
         self.metrics_history.append({
             "timestamp": datetime.now().isoformat(),
             "metrics": metrics,
             "violations": violations
         })
-        
+
         # Mantener solo las últimas 100 entradas
         if len(self.metrics_history) > 100:
             self.metrics_history = self.metrics_history[-100:]
-        
+
         self.last_update = datetime.now()
-        
+
         return {
             "dashboard": {
                 "last_update": self.last_update.isoformat(),
@@ -196,12 +198,12 @@ class MetricsDashboard:
             "violations": violations,
             "recent_alerts": self.alerts[-10:]  # Últimas 10 alertas
         }
-    
-    def get_kpis(self) -> Dict[str, Any]:
+
+    def get_kpis(self) -> dict[str, Any]:
         """Obtiene KPIs clave para monitoreo."""
         metrics = get_metrics_summary()
         global_metrics = metrics.get("global_metrics", {})
-        
+
         return {
             "performance": {
                 "latency_p50_ms": global_metrics.get("latency_p50", 0.0),
@@ -224,18 +226,18 @@ class MetricsDashboard:
                 "last_update": self.last_update.isoformat()
             }
         }
-    
+
     def acknowledge_alert(self, alert_id: str):
         """Marca una alerta como reconocida."""
         for alert in self.alerts:
             if alert["id"] == alert_id:
                 alert["acknowledged"] = True
                 break
-    
+
     def export_metrics(self, format: str = "json") -> str:
         """Exporta métricas en diferentes formatos."""
         metrics = get_metrics_summary()
-        
+
         if format == "json":
             return json.dumps(metrics, indent=2, default=str)
         elif format == "csv":
@@ -243,30 +245,30 @@ class MetricsDashboard:
             return "CSV export not implemented yet"
         else:
             return f"Unsupported format: {format}"
-    
-    def get_metrics_trend(self, hours: int = 24) -> Dict[str, Any]:
+
+    def get_metrics_trend(self, hours: int = 24) -> dict[str, Any]:
         """Obtiene tendencias de métricas en las últimas N horas."""
         cutoff_time = datetime.now() - timedelta(hours=hours)
-        
+
         relevant_history = [
             entry for entry in self.metrics_history
             if datetime.fromisoformat(entry["timestamp"]) > cutoff_time
         ]
-        
+
         if not relevant_history:
             return {"message": "No hay datos suficientes para el período solicitado"}
-        
+
         # Calcular tendencias básicas
         trends = {}
         for entry in relevant_history:
             metrics = entry["metrics"]
             global_metrics = metrics.get("global_metrics", {})
-            
+
             for metric_name, value in global_metrics.items():
                 if metric_name not in trends:
                     trends[metric_name] = []
                 trends[metric_name].append(value)
-        
+
         # Calcular estadísticas de tendencia
         trend_analysis = {}
         for metric_name, values in trends.items():
@@ -276,9 +278,13 @@ class MetricsDashboard:
                     "min": min(values),
                     "max": max(values),
                     "avg": sum(values) / len(values),
-                    "trend": "increasing" if values[-1] > values[0] else "decreasing" if values[-1] < values[0] else "stable"
+                    "trend": (
+                        "increasing" if values[-1] > values[0]
+                        else "decreasing" if values[-1] < values[0]
+                        else "stable"
+                    )
                 }
-        
+
         return {
             "period_hours": hours,
             "data_points": len(relevant_history),
@@ -295,11 +301,11 @@ def get_dashboard() -> MetricsDashboard:
     return dashboard
 
 
-def update_dashboard() -> Dict[str, Any]:
+def update_dashboard() -> dict[str, Any]:
     """Actualiza y obtiene el estado del dashboard."""
     return dashboard.update()
 
 
-def get_kpis() -> Dict[str, Any]:
+def get_kpis() -> dict[str, Any]:
     """Obtiene KPIs clave del dashboard."""
     return dashboard.get_kpis()

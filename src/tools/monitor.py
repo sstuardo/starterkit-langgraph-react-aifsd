@@ -7,9 +7,9 @@ Propósito:
   análisis de rendimiento del agente ReAct.
 """
 
-from src.core.tool_interface import ToolInput, ToolOutput
-from src.core.metrics_dashboard import get_kpis, update_dashboard, get_dashboard
+from src.core.metrics_dashboard import get_dashboard, get_kpis, update_dashboard
 from src.core.observability import get_metrics_summary
+from src.core.tool_interface import ToolInput, ToolOutput
 
 
 class MonitorIn(ToolInput):
@@ -25,7 +25,7 @@ class MonitorIn(ToolInput):
       hours: Período en horas para tendencias (opcional).
       format: Formato de salida (json, summary).
     """
-    
+
     action: str = "kpis"  # kpis, metrics, dashboard, alerts, trends
     operation: str = None  # Operación específica
     hours: int = 24  # Período para tendencias
@@ -48,7 +48,9 @@ class MonitorTool:
     """
 
     name: str = "monitor"
-    description: str = "Monitorea métricas, KPIs y estado del sistema de observabilidad."
+    description: str = (
+        "Monitorea métricas, KPIs y estado del sistema de observabilidad."
+    )
     input_schema = MonitorIn
     output_schema = ToolOutput
     timeout_s: int = 5
@@ -84,49 +86,52 @@ class MonitorTool:
                     ok=False,
                     content={"error": f"Acción no válida: {args.action}"}
                 )
-            
+
             # Formatear salida según el formato solicitado
             if args.format == "json":
                 return ToolOutput(ok=True, content=content)
             else:  # summary
-                return ToolOutput(ok=True, content=self._format_summary(content, args.action))
-                
+                return ToolOutput(
+                    ok=True,
+                    content=self._format_summary(content, args.action)
+                )
+
         except Exception as e:
             return ToolOutput(
                 ok=False,
                 content={"error": f"Error en monitoreo: {str(e)}"}
             )
-    
+
     def _get_kpis(self) -> dict:
         """Obtiene KPIs clave del sistema."""
         return get_kpis()
-    
+
     def _get_metrics(self, operation: str = None) -> dict:
         """Obtiene métricas detalladas."""
         if operation:
             return get_metrics_summary(operation)
         return get_metrics_summary()
-    
+
     def _get_dashboard(self) -> dict:
         """Obtiene estado completo del dashboard."""
         return update_dashboard()
-    
+
     def _get_alerts(self) -> dict:
         """Obtiene alertas activas del sistema."""
         dashboard = get_dashboard()
         active_alerts = [a for a in dashboard.alerts if not a["acknowledged"]]
-        
+
         return {
             "active_alerts": len(active_alerts),
             "total_alerts": len(dashboard.alerts),
             "alerts": active_alerts[:10]  # Últimas 10 alertas activas
         }
-    
+
     def _get_trends(self, hours: int) -> dict:
         """Obtiene tendencias de métricas."""
         dashboard = get_dashboard()
         return dashboard.get_metrics_trend(hours)
-    
+
     def _format_summary(self, content: dict, action: str) -> dict:
         """Formatea el contenido en un resumen legible."""
         if action == "kpis":
@@ -139,9 +144,9 @@ class MonitorTool:
             return self._format_alerts_summary(content)
         elif action == "trends":
             return self._format_trends_summary(content)
-        
+
         return content
-    
+
     def _format_kpis_summary(self, kpis: dict) -> dict:
         """Formatea KPIs en un resumen legible."""
         return {
@@ -167,7 +172,7 @@ class MonitorTool:
                 "ultima_actualizacion": kpis['health']['last_update']
             }
         }
-    
+
     def _format_metrics_summary(self, metrics: dict) -> dict:
         """Formatea métricas en un resumen legible."""
         if "global_metrics" in metrics:
@@ -177,7 +182,9 @@ class MonitorTool:
                 "pasos": global_metrics.get("total_steps", 0),
                 "tokens": global_metrics.get("total_tokens", 0),
                 "costo": f"${global_metrics.get('estimated_cost_usd', 0.0):.4f}",
-                "tasa_exito": f"{global_metrics.get('tool_success_rate', 0.0)*100:.1f}%",
+                "tasa_exito": (
+                    f"{global_metrics.get('tool_success_rate', 0.0)*100:.1f}%"
+                ),
                 "operaciones": len(metrics.get("operations", {}))
             }
         else:
@@ -186,9 +193,11 @@ class MonitorTool:
                 "operacion": metrics.get("operation", "N/A"),
                 "pasos": metrics.get("metrics", {}).get("total_steps", 0),
                 "tokens": metrics.get("metrics", {}).get("total_tokens", 0),
-                "costo": f"${metrics.get('metrics', {}).get('estimated_cost_usd', 0.0):.4f}"
+                "costo": (
+                    f"${metrics.get('metrics', {}).get('estimated_cost_usd', 0.0):.4f}"
+                )
             }
-    
+
     def _format_dashboard_summary(self, dashboard: dict) -> dict:
         """Formatea dashboard en un resumen legible."""
         return {
@@ -199,7 +208,7 @@ class MonitorTool:
             "violaciones": dashboard["dashboard"]["total_violations"],
             "metricas_disponibles": len(dashboard["metrics"].get("operations", {}))
         }
-    
+
     def _format_alerts_summary(self, alerts: dict) -> dict:
         """Formatea alertas en un resumen legible."""
         return {
@@ -215,12 +224,12 @@ class MonitorTool:
                 for alert in alerts["alerts"][:5]  # Solo las primeras 5
             ]
         }
-    
+
     def _format_trends_summary(self, trends: dict) -> dict:
         """Formatea tendencias en un resumen legible."""
         if "message" in trends:
             return {"summary": "Tendencias", "mensaje": trends["message"]}
-        
+
         return {
             "summary": "Análisis de Tendencias",
             "periodo_horas": trends["period_hours"],
