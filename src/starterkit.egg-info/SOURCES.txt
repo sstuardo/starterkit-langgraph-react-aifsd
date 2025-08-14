@@ -8,6 +8,7 @@ src/adapters/lc_tool_bridge.py
 src/adapters/llm_interface.py
 src/core/__init__.py
 src/core/errors.py
+src/core/metrics_dashboard.py
 src/core/observability.py
 src/core/policies.py
 src/core/settings.py
@@ -29,8 +30,10 @@ src/starterkit.egg-info/requires.txt
 src/starterkit.egg-info/top_level.txt
 src/tools/echo.py
 src/tools/hello.py
+src/tools/monitor.py
 src/tools/web_search_mock.py
 tests/test_graph_compile.py
 tests/test_llm_fallback.py
+tests/test_observability.py
 tests/test_react_loop.py
 tests/test_tools.py

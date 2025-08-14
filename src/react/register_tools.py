@@ -1,8 +1,9 @@
-"""Registro de herramientas demo para smoke tests."""
+"""Registro de herramientas disponibles para el agente ReAct."""
 
 from src.react.tool_executor import TOOL_REGISTRY
 from src.tools.echo import EchoTool
 from src.tools.hello import HelloTool
+from src.tools.monitor import MonitorTool
 
 
 def ensure_tools_registered() -> None:
@@ -11,3 +12,5 @@ def ensure_tools_registered() -> None:
         TOOL_REGISTRY["echo"] = EchoTool()
     if "hello" not in TOOL_REGISTRY:
         TOOL_REGISTRY["hello"] = HelloTool()
+    if "monitor" not in TOOL_REGISTRY:
+        TOOL_REGISTRY["monitor"] = MonitorTool()

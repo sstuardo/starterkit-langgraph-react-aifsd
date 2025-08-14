@@ -15,7 +15,10 @@ Provides-Extra: agent
 Requires-Dist: langchain<0.4,>=0.3; extra == "agent"
 Requires-Dist: langchain-openai<0.4,>=0.2; extra == "agent"
 Requires-Dist: langchain-community<0.4,>=0.2; extra == "agent"
+Requires-Dist: langgraph<0.4,>=0.3; extra == "agent"
+Requires-Dist: openai<2.0,>=1.0; extra == "agent"
 Provides-Extra: dev
 Requires-Dist: pre-commit<4.0,>=3.0; extra == "dev"
 Requires-Dist: ruff<1.0,>=0.3.0; extra == "dev"
 Requires-Dist: safety<3.0,>=2.0; extra == "dev"
+Requires-Dist: structlog<25.0,>=24.0; extra == "dev"
