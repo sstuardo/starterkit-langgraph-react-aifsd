@@ -1,5 +1,0 @@
-adapters
-core
-prompts
-react
-tools
