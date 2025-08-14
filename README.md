@@ -1,86 +1,48 @@
-# Starter Kit — ReAct + LangGraph
+# 🔒 StarterKit - Repositorio Comercial Privado
 
-[![CI/CD Pipeline](https://github.com/sstuardo/starterkit-langgraph-react-aifsd/actions/workflows/ci.yml/badge.svg)](https://github.com/sstuardo/starterkit-langgraph-react-aifsd/actions/workflows/ci.yml)
-[![Release](https://github.com/sstuardo/starterkit-langgraph-react-aifsd/actions/workflows/release.yml/badge.svg)](https://github.com/sstuardo/starterkit-langgraph-react-aifsd/actions/workflows/release.yml)
-[![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+## 🎯 **Propósito**
 
-Plantilla neutral para agentes con ciclo ReAct y compilación a grafo con LangGraph.
+Este repositorio contiene toda la información comercial, estratégica y de marketing de StarterKit. **NO es público** y contiene información confidencial del negocio.
 
-Repo: https://github.com/sstuardo/starterkit-langgraph-react-aifsd/
+---
 
-## Requisitos
-- Python **3.11.x** (probado en macOS).
-- `pip>=25` recomendado.
-- (Opcional) Clave `OPENAI_API_KEY` si usas el modo **LLM**.
+## 📁 **Contenido**
 
-## Instalación rápida
-```bash
-python -m venv .venv
-source .venv/bin/activate
-pip install -U pip
-pip install -e '.[test]'        # deps base + tests
-# Opcional (modo LLM)
-pip install -e '.[agent]'
-cp .env.example .env            # y completa OPENAI_API_KEY si usarás LLM
-```
+### **📚 Documentos Comerciales:**
+- `docs/LANDING_PAGE.md` - Landing page comercial para conversión
+- `docs/MARKETING_PLAN.md` - Plan de marketing completo de 12 meses
+- `docs/VIDEO_SCRIPT.md` - Script para video demo viral
 
-## Estructura
-```
-src/
-  core/            # State, settings (.env), policies, observabilidad
-  react/           # planner, reasoner, tool_selector, tool_executor, critic, finalizer
-  adapters/        # langgraph_builder (compila grafo) y graph_entry (entrypoint)
-  tools/           # herramientas (p.ej., echo)
-tests/             # pruebas básicas
-```
+### **🎨 Assets:**
+- `assets/` - Imágenes, gráficos y recursos visuales
 
-## Uso
-### 1) Modo estático (router determinístico)
-```bash
-python -m src.adapters.graph_entry static "Usa echo con el texto: Hola estático"
-```
-Esperado: `Artifacts: ['echo']` y `evidence_keys` con `echo`.
+---
 
-### 2) Modo LLM (ToolNode + tools_condition)
-Requiere `.env` con `OPENAI_API_KEY` y extras `[agent]`.
-```bash
-python -m src.adapters.graph_entry llm "Usa la herramienta echo para repetir exactamente: Hola desde LLM"
-```
+## 🚀 **Uso**
 
-**Opciones de control**:
-- `LLM_FALLBACK=0|1` (default **1**): si es 1, hay *fallback* determinístico a `echo` cuando el prompt lo pide explícitamente.
-- `LLM_TOOL_CHOICE=auto|none|required|<nombre_tool>`: fuerza el uso de tools por el modelo (p.ej. `required` o `echo`).
+Este repositorio es para:
+- **📊 Planificación** de estrategias comerciales
+- **📈 Seguimiento** de métricas de ventas
+- **🎯 Desarrollo** de campañas de marketing
+- **💼 Gestión** de precios y planes
 
-Ejemplos:
-```bash
-LLM_FALLBACK=0 LLM_TOOL_CHOICE=required \
-python -m src.adapters.graph_entry llm "Usa la herramienta echo ..."
-```
+---
 
-### 3) Loop ReAct puro (sin LangGraph)
-```bash
-python -m src.react.loop
-```
+## 🔐 **Seguridad**
 
-## Variables de entorno (`.env`)
-- `OPENAI_API_KEY=...` (modo LLM)
-- `LLM_MODEL=gpt-4o-mini` (opcional)
-- `LLM_TOOL_CHOICE=auto` (opcional)
-- `LLM_FALLBACK=1` (opcional)
+- **NO compartir** este repositorio públicamente
+- **NO incluir** en repositorios públicos
+- **Acceso limitado** solo al equipo comercial
+- **Información confidencial** del negocio
 
-## Tests
-```bash
-pytest -q
-```
-> Si ves warnings de Pydantic/ LangGraph, son inofensivos. Puedes silenciarlos con `tests/conftest.py` (ver docs).
+---
 
-## Solución de problemas
-Consulta **docs/TROUBLESHOOTING.md** para errores comunes como `GraphRecursionError` o `Invalid parameter: messages with role 'tool' ...`
+## 📞 **Contacto**
 
-## Versionado
-- SemVer en `CHANGELOG.md`.
-- Rango de dependencias seguro en `pyproject.toml`.
+- **Propietario:** Sebastian Stuardo
+- **Email:** sebastian@starterkit.ai
+- **Repositorio público:** https://github.com/sstuardo/starterkit-langgraph-react-aifsd
 
-## Licencia
-MIT — ver `LICENSE`.
+---
+
+*Este repositorio contiene la estrategia comercial de StarterKit. Mantener confidencial.* 🔒
