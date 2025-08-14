@@ -8,10 +8,11 @@ Modos:
   planner → model → (tools?) → model → critic → finalizer
 
 Notas:
-- Los imports del modo LLM se hacen *dentro* de la función para no requerir deps opcionales
-  cuando usas el modo estático.
-- En el modo LLM se limita el ciclo a **una** ejecución de tools por invocación para evitar
-  recursiones (se detecta un `ToolMessage` y se cierra el episodio).
+- Los imports del modo LLM se hacen *dentro* de la función para no requerir
+  deps opcionales cuando usas el modo estático.
+- En el modo LLM se limita el ciclo a **una** ejecución de tools por
+  invocación para evitar recursiones (se detecta un `ToolMessage` y se
+  cierra el episodio).
 """
 
 from __future__ import annotations
@@ -119,7 +120,8 @@ def _compile_llm():
     SYSTEM_HINT = (
         "Eres un agente ReAct. Herramientas disponibles:\n"
         "- echo(text:str): devuelve exactamente el texto.\n"
-        "Si el usuario pide repetir/eco o dice 'usa la herramienta echo', llama 'echo' UNA sola vez y luego responde."
+        "Si el usuario pide repetir/eco o dice 'usa la herramienta echo', "
+        "llama 'echo' UNA sola vez y luego responde."
     )
 
     def _prepare_first_turn(msgs, user_query):
@@ -196,7 +198,8 @@ def _compile_llm():
                         "content": {"tool": tool_name, "result": payload},
                     }
                 )
-            # 2) Si venimos del fallback (artifacts ya poblados), también anotar observación
+            # 2) Si venimos del fallback (artifacts ya poblados), también anotar
+            #    observación
             if (
                 s.metadata.get("selected_tool") is None
                 and not tool_msgs
@@ -225,7 +228,8 @@ def _compile_llm():
     g.set_entry_point("planner")
     g.add_edge("planner", "model")
 
-    # Router del modelo: tools (si tool_calls), fallback (si prompt lo pide), o cerrar a sync
+    # Router del modelo: tools (si tool_calls), fallback (si prompt lo pide), o
+    # cerrar a sync
     g.add_conditional_edges(
         "model",
         model_router,

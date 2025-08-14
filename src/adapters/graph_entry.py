@@ -10,7 +10,7 @@ Propósito:
 Uso CLI:
   python -m src.adapters.graph_entry
   python -m src.adapters.graph_entry static "Usa echo con el texto: hola"
-  python -m src.adapters.graph_entry llm "Usa la herramienta echo para repetir: hola LLM"
+  python -m src.adapters.graph_entry llm \
 
 Variables de entorno:
   - SELECTOR_MODE: "static" | "llm" (se usa si no pasas el modo por CLI;
